@@ -3,6 +3,8 @@ package org.codefamily.libva.plugin;
 import org.codefamily.libva.annotation.Singleton;
 import org.codefamily.libva.util.Closeables;
 import org.codefamily.libva.util.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,9 +12,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -30,8 +30,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class PluginManager {
 
+    private static final Logger LOG = LoggerFactory.getLogger(PluginManager.class);
+
     // 插件的配置目录
-    private static final String PLUGIN_FOLDER = "/META-INF/services/";
+    private static final String PLUGIN_FOLDER = "META-INF/services/";
 
     private PluginManager() {
         // nothing to do.
@@ -53,7 +55,8 @@ public final class PluginManager {
             throw new IllegalArgumentException("plugin class is null.");
         }
         if (!Pluggable.class.isAssignableFrom(pluginClass)) {
-            throw new IllegalArgumentException("plugin class must be a sub-class of pluggable.");
+            throw new IllegalArgumentException(String.format("plugin class must be a sub-class of %s.",
+                    Pluggable.class.getName()));
         }
 
         T provider;
@@ -91,18 +94,12 @@ public final class PluginManager {
          * @param <T>         服务类
          * @return 当前JVM中，服务的所有提供者
          */
-        public static <T extends Pluggable> Iterable<ServiceProvider<T>> providers(Class<T> pluginClass) {
+        static <T extends Pluggable> Iterable<ServiceProvider<T>> providers(Class<T> pluginClass) {
             String pluginName = pluginClass.getName();
-            if (!Pluggable.class.isAssignableFrom(pluginClass)) {
-                throw new RuntimeException(String.format("plugin(%s) must be a sub-class of %s",
-                        pluginName, Pluggable.class.getName()));
-            }
-
             @SuppressWarnings("unchecked")
             Service<T> service = services.get(pluginClass);
             if (service == null) {
                 // 加载服务插件
-                service = new Service<T>(pluginClass);
                 String configFileName = PLUGIN_FOLDER + pluginName;
                 ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
                 Enumeration<URL> configs;
@@ -116,12 +113,24 @@ public final class PluginManager {
                 BufferedReader reader;
                 String providerName;
                 ServiceProvider<T> provider;
+
+                // 所有已加载的服务提供者
+                Set<String> providerNames = new HashSet<String>(10);
+                service = new Service<T>(pluginClass);
                 try {
                     while (configs.hasMoreElements()) {
                         providerURL = configs.nextElement();
                         reader = new BufferedReader(new InputStreamReader(providerURL.openStream()));
                         try {
                             while ((providerName = reader.readLine()) != null) {
+                                providerName = providerName.trim();
+                                if (Strings.isNullOrEmpty(providerName)) {
+                                    continue;
+                                }
+                                if (!providerNames.add(providerName)) {
+                                    LOG.warn(String.format("duplicated plugin(%s) and ignore it.", providerName));
+                                    continue;
+                                }
                                 provider = new ServiceProvider<T>(providerName, pluginClass);
                                 service.addProvider(provider);
                             }
@@ -167,21 +176,16 @@ public final class PluginManager {
 
         ServiceProvider(final String className, final Class<T> pluginClass) {
             Class providerClass;
-            boolean singleton = false;
             try {
                 providerClass = Class.forName(className);
-                if (providerClass.isAnnotationPresent(Singleton.class)) {
-                    Singleton annotation = (Singleton) providerClass.getAnnotation(Singleton.class);
-                    singleton = annotation.value();
-                }
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(String.format("plugin(%s) is not found.", className), e);
             }
 
-            this.singleton = singleton;
             this.providerClass = providerClass;
             this.className = className;
             this.pluginClass = pluginClass;
+            this.singleton = providerClass.isAnnotationPresent(Singleton.class);
         }
 
         /**
@@ -189,7 +193,7 @@ public final class PluginManager {
          *
          * @return 插件的特定实现
          */
-        public T getProvider() {
+        T getProvider() {
             T provider;
             if (singleton) {
                 if (cachedTarget == null) {
