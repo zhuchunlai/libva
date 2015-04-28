@@ -1,4 +1,4 @@
-package org.codefamily.libva.plugin;
+package org.codefamily.libva.spi;
 
 import org.codefamily.libva.annotation.Singleton;
 import org.codefamily.libva.util.Closeables;

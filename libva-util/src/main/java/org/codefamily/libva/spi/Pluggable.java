@@ -1,4 +1,4 @@
-package org.codefamily.libva.plugin;
+package org.codefamily.libva.spi;
 
 /**
  * 插件，标识组件是可插拔的。
