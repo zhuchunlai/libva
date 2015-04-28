@@ -6,7 +6,27 @@
 
     <groupId>org.codefamily</groupId>
     <artifactId>libva</artifactId>
+    <packaging>pom</packaging>
     <version>1.0</version>
+    <modules>
+        <module>libva-util</module>
+        <module>libva-annotation</module>
+    </modules>
 
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.codefamily</groupId>
+                <artifactId>libva-annotation</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codefamily</groupId>
+                <artifactId>libva-utils</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>

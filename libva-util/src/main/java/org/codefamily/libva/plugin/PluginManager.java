@@ -56,9 +56,11 @@ public final class PluginManager {
             throw new IllegalArgumentException("plugin class must be a sub-class of pluggable.");
         }
 
-        for (T service : Service.providers(pluginClass)) {
-            if (service.acceptURL(url)) {
-                return service;
+        T provider;
+        for (ServiceProvider<T> serviceProvider : Service.providers(pluginClass)) {
+            provider = serviceProvider.getProvider();
+            if (provider.acceptURL(url)) {
+                return provider;
             }
         }
         return null;
@@ -67,20 +69,18 @@ public final class PluginManager {
     /**
      * 服务
      */
-    private static class Service {
+    private static class Service<T extends Pluggable> {
 
         // 服务基类
-        private final Class pluginClass;
+        private final Class<T> pluginClass;
 
         // 服务提供者列表
-        private List<ServiceProvider> providers = new ArrayList<ServiceProvider>(10);
+        private List<ServiceProvider<T>> providers = new ArrayList<ServiceProvider<T>>(10);
 
-        // 服务是否加载完毕
-        private boolean loaded = false;
+        // 所有服务
+        private static ConcurrentHashMap<Class, Service> services = new ConcurrentHashMap<Class, Service>(10);
 
-        private static ConcurrentHashMap<Class, Service> PLUGINS = new ConcurrentHashMap<Class, Service>(10);
-
-        private Service(final Class pluginClass) {
+        private Service(final Class<T> pluginClass) {
             this.pluginClass = pluginClass;
         }
 
@@ -91,46 +91,54 @@ public final class PluginManager {
          * @param <T>         服务类
          * @return 当前JVM中，服务的所有提供者
          */
-        public static <T extends Pluggable> Iterable<T> providers(Class<T> pluginClass) {
+        public static <T extends Pluggable> Iterable<ServiceProvider<T>> providers(Class<T> pluginClass) {
             String pluginName = pluginClass.getName();
             if (!Pluggable.class.isAssignableFrom(pluginClass)) {
                 throw new RuntimeException(String.format("plugin(%s) must be a sub-class of %s",
                         pluginName, Pluggable.class.getName()));
             }
 
-            String configFileName = PLUGIN_FOLDER + pluginName;
-
-            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            Enumeration<URL> configs;
-            try {
-                configs = classLoader.getResources(configFileName);
-            } catch (IOException e) {
-                throw new RuntimeException(String.format("load plugin(%s) error.", pluginName), e);
-            }
-
-            URL providerURL;
-            BufferedReader reader;
-            String providerName;
-            try {
-                while (configs.hasMoreElements()) {
-                    providerURL = configs.nextElement();
-                    reader = new BufferedReader(new InputStreamReader(providerURL.openStream()));
-                    try {
-                        while ((providerName = reader.readLine()) != null) {
-                            // todo
-                        }
-                    } finally {
-                        Closeables.close(reader);
-                    }
+            @SuppressWarnings("unchecked")
+            Service<T> service = services.get(pluginClass);
+            if (service == null) {
+                // 加载服务插件
+                service = new Service<T>(pluginClass);
+                String configFileName = PLUGIN_FOLDER + pluginName;
+                ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+                Enumeration<URL> configs;
+                try {
+                    configs = classLoader.getResources(configFileName);
+                } catch (IOException e) {
+                    throw new RuntimeException(String.format("load plugin(%s) error.", pluginName), e);
                 }
-            } catch (IOException e) {
-                throw new RuntimeException(String.format("load plugin(%s) error.", pluginName), e);
+
+                URL providerURL;
+                BufferedReader reader;
+                String providerName;
+                ServiceProvider<T> provider;
+                try {
+                    while (configs.hasMoreElements()) {
+                        providerURL = configs.nextElement();
+                        reader = new BufferedReader(new InputStreamReader(providerURL.openStream()));
+                        try {
+                            while ((providerName = reader.readLine()) != null) {
+                                provider = new ServiceProvider<T>(providerName, pluginClass);
+                                service.addProvider(provider);
+                            }
+                        } finally {
+                            Closeables.close(reader);
+                        }
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(String.format("load plugin(%s) error.", pluginName), e);
+                }
+                services.put(pluginClass, service);
             }
 
-            throw new UnsupportedOperationException();
+            return service.providers;
         }
 
-        private void addProvider(ServiceProvider provider) {
+        private void addProvider(ServiceProvider<T> provider) {
             providers.add(provider);
         }
 
