@@ -94,12 +94,12 @@ public final class PluginManager {
          * @param <T>         服务类
          * @return 当前JVM中，服务的所有提供者
          */
+        @SuppressWarnings("unchecked")
         static <T extends Pluggable> Iterable<ServiceProvider<T>> providers(Class<T> pluginClass) {
-            String pluginName = pluginClass.getName();
-            @SuppressWarnings("unchecked")
             Service<T> service = services.get(pluginClass);
             if (service == null) {
                 // 加载服务插件
+                String pluginName = pluginClass.getName();
                 String configFileName = PLUGIN_FOLDER + pluginName;
                 ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
                 Enumeration<URL> configs;
@@ -141,7 +141,7 @@ public final class PluginManager {
                 } catch (IOException e) {
                     throw new RuntimeException(String.format("load plugin(%s) error.", pluginName), e);
                 }
-                services.put(pluginClass, service);
+                services.putIfAbsent(pluginClass, service);
             }
 
             return service.providers;
