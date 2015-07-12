@@ -141,7 +141,10 @@ public final class PluginManager {
                 } catch (IOException e) {
                     throw new RuntimeException(String.format("load plugin(%s) error.", pluginName), e);
                 }
-                services.putIfAbsent(pluginClass, service);
+                Service<T> aService = services.putIfAbsent(pluginClass, service);
+                if (aService != null) {
+                    service = aService;
+                }
             }
 
             return service.providers;
