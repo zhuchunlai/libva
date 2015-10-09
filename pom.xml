@@ -11,29 +11,24 @@
     <modules>
         <module>libva-support</module>
         <module>libva-annotation</module>
+        <module>libva-http</module>
     </modules>
 
     <properties>
         <jdk.version>1.6</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <httpclient-version>4.3.1</httpclient-version>
         <slf4j-api.version>1.7.9</slf4j-api.version>
     </properties>
 
 
     <dependencyManagement>
         <dependencies>
-
             <dependency>
-                <groupId>org.codefamily.libva</groupId>
-                <artifactId>libva-annotation</artifactId>
-                <version>${project.version}</version>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${httpclient-version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.codefamily.libva</groupId>
-                <artifactId>libva-utils</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
