@@ -2,6 +2,8 @@ package org.codefamily.libva.spi;
 
 import org.codefamily.libva.annotation.Singleton;
 import org.codefamily.libva.util.Closeables;
+import org.codefamily.libva.util.ReadonlyArrayList;
+import org.codefamily.libva.util.ReadonlyList;
 import org.codefamily.libva.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +69,29 @@ public final class PluginManager {
             }
         }
         return null;
+    }
+
+    /**
+     * 加载指定类型的所有插件
+     *
+     * @param pluginClass 插件类型
+     * @param <T>         插件类
+     * @return 指定插件类型的所有实现
+     */
+    public static <T extends Pluggable> ReadonlyList<T> getPlugin(final Class<T> pluginClass) {
+        if (pluginClass == null) {
+            throw new IllegalArgumentException("plugin class is null.");
+        }
+        if (!Pluggable.class.isAssignableFrom(pluginClass)) {
+            throw new IllegalArgumentException(String.format("plugin class must be a sub-class of %s.",
+                    Pluggable.class.getName()));
+        }
+
+        List<T> providers = new ArrayList<T>();
+        for (ServiceProvider<T> serviceProvider : Service.providers(pluginClass)) {
+            providers.add(serviceProvider.getProvider());
+        }
+        return new ReadonlyArrayList<T>(providers);
     }
 
     /**

@@ -9,19 +9,12 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>libva-support</artifactId>
+    <artifactId>libva-http</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>libva-http-core</module>
+        <module>libva-http-connector</module>
+    </modules>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.codefamily.libva</groupId>
-            <artifactId>libva-annotation</artifactId>
-            <version>1.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-    </dependencies>
 
 </project>

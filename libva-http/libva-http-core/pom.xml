@@ -3,24 +3,19 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>libva</artifactId>
+        <artifactId>libva-http</artifactId>
         <groupId>org.codefamily.libva</groupId>
         <version>1.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>libva-support</artifactId>
+    <artifactId>libva-http-core</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>org.codefamily.libva</groupId>
-            <artifactId>libva-annotation</artifactId>
+            <artifactId>libva-support</artifactId>
             <version>1.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
         </dependency>
     </dependencies>
 
