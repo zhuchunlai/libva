@@ -1,7 +1,7 @@
 package org.codefamily.libva.http.core;
 
 /**
- * // TODO doc
+ * http请求方法
  *
  * @author zhuchunlai
  * @version 1.0.0

@@ -11,5 +11,12 @@
 
     <artifactId>libva-http-core</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.codefamily.libva</groupId>
+            <artifactId>libva-support</artifactId>
+            <version>1.0</version>
+        </dependency>
+    </dependencies>
 
 </project>

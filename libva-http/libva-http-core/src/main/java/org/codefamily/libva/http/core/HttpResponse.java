@@ -1,11 +1,16 @@
 package org.codefamily.libva.http.core;
 
 /**
- * // TODO doc
+ * http响应的抽象
  *
  * @author zhuchunlai
  * @version 1.0.0
  * @since 2015-10-09
  */
-public class HttpResponse {
+public class HttpResponse<R> {
+
+    private R entity;
+
+
+
 }
