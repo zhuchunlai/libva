@@ -15,6 +15,7 @@ public class HttpRequest<R> {
     private String endpoint;
     // path路径
     private String path;
+    // Content-Type
     private String contentType = ClientConstants.CONTENT_TYPE_JSON;
     // 请求方法
     private HttpMethod method = HttpMethod.GET;

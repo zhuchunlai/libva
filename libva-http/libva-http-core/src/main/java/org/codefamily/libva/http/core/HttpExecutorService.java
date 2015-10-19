@@ -11,6 +11,6 @@ import org.codefamily.libva.spi.Pluggable;
  */
 public interface HttpExecutorService extends Pluggable {
 
-    <R> HttpResponse execute(HttpRequest<R> request);
+    <R> HttpResponse<R> execute(HttpRequest<R> request);
 
 }

@@ -1,5 +1,7 @@
 package org.codefamily.libva.http.core;
 
+import java.util.Map;
+
 /**
  * http响应的抽象
  *
@@ -7,10 +9,16 @@ package org.codefamily.libva.http.core;
  * @version 1.0.0
  * @since 2015-10-09
  */
-public class HttpResponse<R> {
+public interface HttpResponse<R> {
 
-    private R entity;
+    int getStatus();
 
+    String getStatusMessage();
 
+    R readEntity(Class<R> returnType);
+
+    String header(String name);
+
+    Map<String, String> headers();
 
 }

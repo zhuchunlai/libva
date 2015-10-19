@@ -32,7 +32,7 @@ public class HttpExecutor {
         return INSTANCE;
     }
 
-    public <R> HttpResponse execute(HttpRequest<R> request) {
+    public <R> HttpResponse<R> execute(HttpRequest<R> request) {
         return executor.execute(request);
     }
 
