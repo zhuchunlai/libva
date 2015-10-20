@@ -93,14 +93,6 @@ public class HttpRequest<R> {
             return this;
         }
 
-        public RequestBuilder<R> get() {
-            return method(HttpMethod.GET);
-        }
-
-        public RequestBuilder<R> post() {
-            return method(HttpMethod.POST);
-        }
-
         public RequestBuilder<R> method(HttpMethod method) {
             request.method = method;
             return this;
