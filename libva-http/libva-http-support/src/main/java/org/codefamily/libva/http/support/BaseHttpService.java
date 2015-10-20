@@ -6,7 +6,7 @@ package org.codefamily.libva.http.support;
  * @author zhuchunlai
  * @version $Id: BaseHttpService.java, v1.0 2015/10/19 22:01 $
  */
-public final class BaseHttpService {
+public class BaseHttpService {
 
     protected BaseHttpService() {
         // nothing to do.

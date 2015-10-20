@@ -19,12 +19,13 @@ public final class UserServiceImpl implements UserService {
     public ActionResponse add(User user) {
         HttpRequest<ActionResponse> request = HttpRequest.builder(ActionResponse.class)
                 .endpoint("www.family.org")
-                .path("user")
+                .path("/user")
                 .contentType(ClientConstants.CONTENT_TYPE_JSON)
                 .config(HttpConfig.DEFAULT)
                 .entity(JSON.toJSONString(user))
                 .method(HttpMethod.POST)
                 .build();
+
         HttpResponse<ActionResponse> response = HttpExecutor.newInstance().execute(request);
         switch (response.getStatus()) {
             case 200:
@@ -35,13 +36,12 @@ public final class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findByName(String userName) {
+    public User findById(long id) {
         HttpRequest<User> request = HttpRequest.builder(User.class)
                 .endpoint("www.family.org")
-                .path("user")
+                .path(String.format("/user/%s", String.valueOf(id)))
                 .contentType(ClientConstants.CONTENT_TYPE_JSON)
                 .config(HttpConfig.DEFAULT)
-                .addParameter("name", userName)
                 .method(HttpMethod.GET)
                 .build();
 
@@ -53,4 +53,22 @@ public final class UserServiceImpl implements UserService {
                 throw new RuntimeException(response.getStatusMessage());
         }
     }
+
+    @Override
+    public User findByName(String name) {
+        HttpRequest<User> request = HttpRequest.builder(User.class)
+                .config(HttpConfig.DEFAULT)
+                .contentType(ClientConstants.CONTENT_TYPE_JSON)
+                .addParameter("name", name)
+                .build();
+
+        HttpResponse<User> response = HttpExecutor.newInstance().execute(request);
+        switch (response.getStatus()) {
+            case 200:
+                return response.readEntity(User.class);
+            default:
+                throw new RuntimeException(response.getStatusMessage());
+        }
+    }
+
 }

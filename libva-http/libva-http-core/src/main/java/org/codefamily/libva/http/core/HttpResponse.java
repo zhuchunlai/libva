@@ -17,6 +17,8 @@ public interface HttpResponse<R> {
 
     R readEntity(Class<R> returnType);
 
+    R readEntity(Class<R> returnType, HttpEntityHandler<R> handler);
+
     String header(String name);
 
     Map<String, String> headers();

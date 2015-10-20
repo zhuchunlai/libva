@@ -12,6 +12,8 @@ public interface UserService {
 
     ActionResponse add(User user);
 
-    User findByName(String userName);
+    User findById(long id);
+
+    User findByName(String name);
 
 }

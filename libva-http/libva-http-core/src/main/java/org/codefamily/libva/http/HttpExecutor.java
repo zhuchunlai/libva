@@ -3,8 +3,11 @@ package org.codefamily.libva.http;
 import org.codefamily.libva.http.core.HttpExecutorService;
 import org.codefamily.libva.http.core.HttpRequest;
 import org.codefamily.libva.http.core.HttpResponse;
+import org.codefamily.libva.http.core.exception.ConnectorNotFoundException;
 import org.codefamily.libva.spi.PluginManager;
 import org.codefamily.libva.util.ReadonlyList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * HTTP请求执行器，对HttpExecutorService进行了进一步的封装
@@ -16,6 +19,8 @@ import org.codefamily.libva.util.ReadonlyList;
  */
 public class HttpExecutor {
 
+    private static final Logger LOG = LoggerFactory.getLogger(HttpExecutor.class);
+
     private static final HttpExecutor INSTANCE = new HttpExecutor();
 
     private final HttpExecutorService executor;
@@ -23,9 +28,11 @@ public class HttpExecutor {
     private HttpExecutor() {
         ReadonlyList<HttpExecutorService> executors = PluginManager.getPlugin(HttpExecutorService.class);
         if (executors == null || executors.isEmpty()) {
-            throw new RuntimeException("no http executor service found.");
+            throw new ConnectorNotFoundException();
         }
-        this.executor = executors.get(0);
+        HttpExecutorService executor = executors.get(0);
+        LOG.info(String.format("Load %s successfully.", executor.getName()));
+        this.executor = executor;
     }
 
     public static HttpExecutor newInstance() {

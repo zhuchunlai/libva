@@ -17,6 +17,11 @@
             <artifactId>libva-support</artifactId>
             <version>1.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.codefamily.libva</groupId>
+            <artifactId>libva-annotation</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
 
 </project>

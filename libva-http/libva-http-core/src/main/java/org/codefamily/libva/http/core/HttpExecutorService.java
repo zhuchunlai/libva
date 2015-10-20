@@ -13,4 +13,6 @@ public interface HttpExecutorService extends Pluggable {
 
     <R> HttpResponse<R> execute(HttpRequest<R> request);
 
+    String getName();
+
 }

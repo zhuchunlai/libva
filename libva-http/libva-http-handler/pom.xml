@@ -3,20 +3,16 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>libva</artifactId>
+        <artifactId>libva-http</artifactId>
         <groupId>org.codefamily.libva</groupId>
         <version>1.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>libva-http</artifactId>
+    <artifactId>libva-http-handler</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>libva-http-core</module>
-        <module>libva-http-connector</module>
-        <module>libva-http-test</module>
-        <module>libva-http-support</module>
-        <module>libva-http-handler</module>
+        <module>handler-json</module>
     </modules>
 
 
