@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>handler-json</artifactId>
+    <artifactId>http-handler-json</artifactId>
 
     <dependencies>
         <dependency>

@@ -1,7 +1,5 @@
 package org.codefamily.libva.http.user;
 
-import org.codefamily.libva.http.ActionResponse;
-
 /**
  * // TODO docs
  *
@@ -10,7 +8,7 @@ import org.codefamily.libva.http.ActionResponse;
  */
 public interface UserService {
 
-    ActionResponse add(User user);
+    User add(User user);
 
     User findById(long id);
 

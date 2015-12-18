@@ -12,7 +12,8 @@
     <artifactId>libva-http-handler</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>handler-json</module>
+        <module>http-handler-json</module>
+        <module>http-handler-text</module>
     </modules>
 
 

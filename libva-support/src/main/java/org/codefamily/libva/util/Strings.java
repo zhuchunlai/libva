@@ -20,4 +20,8 @@ public final class Strings {
         return value == null || value.trim().length() == 0;
     }
 
+    public static boolean isNull(String value) {
+        return value == null;
+    }
+
 }

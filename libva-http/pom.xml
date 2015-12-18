@@ -15,7 +15,6 @@
         <module>libva-http-core</module>
         <module>libva-http-connector</module>
         <module>libva-http-test</module>
-        <module>libva-http-support</module>
         <module>libva-http-handler</module>
     </modules>
 

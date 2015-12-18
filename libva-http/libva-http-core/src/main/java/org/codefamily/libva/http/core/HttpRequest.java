@@ -1,11 +1,16 @@
 package org.codefamily.libva.http.core;
 
+import org.codefamily.libva.http.core.exception.ClientException;
+import org.codefamily.libva.util.Strings;
+
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * http 请求抽象
+ * HTTP 请求抽象
  *
+ * @param <R> HTTP响应所对应的实体类型
  * @author zhuchunlai
  * @version 1.0.0
  * @since 2015-10-09
@@ -14,9 +19,9 @@ public class HttpRequest<R> {
     // 请求地址
     private String endpoint;
     // path路径
-    private String path;
+    private String path = Constants.EMPTY_STRING;
     // Content-Type
-    private String contentType = ClientConstants.CONTENT_TYPE_JSON;
+    private ContentType contentType = ContentType.APPLICATION_JSON;
     // 请求方法
     private HttpMethod method = HttpMethod.GET;
     // 配置
@@ -24,11 +29,15 @@ public class HttpRequest<R> {
     // 请求头
     private Map<String, String> headers;
     // 请求参数，最终会转换成URL参数
-    private Map<String, Object> parameters;
+    private Map<String, String> parameters;
     // 请求体
     private Object entity;
     // 响应的实体类型
     private Class<R> returnType;
+    // 响应解析器名称
+    private String entityHandlerName;
+    // 响应编码
+    private Charset responseCharset;
 
     private HttpRequest() {
         // nothing to do.
@@ -50,7 +59,7 @@ public class HttpRequest<R> {
         return config;
     }
 
-    public String getContentType() {
+    public ContentType getContentType() {
         return contentType;
     }
 
@@ -58,8 +67,12 @@ public class HttpRequest<R> {
         return headers;
     }
 
-    public Map<String, Object> getParameters() {
+    public Map<String, String> getParameters() {
         return parameters;
+    }
+
+    public Charset getResponseCharset() {
+        return responseCharset;
     }
 
     public Object getEntity() {
@@ -68,6 +81,22 @@ public class HttpRequest<R> {
 
     public Class<R> getReturnType() {
         return returnType;
+    }
+
+    public String getEntityHandlerName() {
+        return entityHandlerName;
+    }
+
+    public boolean hasParameters() {
+        return parameters != null && !parameters.isEmpty();
+    }
+
+    public boolean hasHeaders() {
+        return headers != null && !headers.isEmpty();
+    }
+
+    public boolean hasEntity() {
+        return entity != null;
     }
 
     public static <R> RequestBuilder<R> builder(Class<R> returnType) {
@@ -103,7 +132,7 @@ public class HttpRequest<R> {
             return this;
         }
 
-        public RequestBuilder<R> contentType(String contentType) {
+        public RequestBuilder<R> contentType(ContentType contentType) {
             request.contentType = contentType;
             return this;
         }
@@ -112,15 +141,19 @@ public class HttpRequest<R> {
             if (request.headers == null) {
                 request.headers = new HashMap<String, String>();
             }
-            request.headers.put(name, value);
+            if (!Strings.isNullOrEmptyAfterTrim(name) && !Strings.isNull(value)) {
+                request.headers.put(name, value);
+            }
             return this;
         }
 
         public RequestBuilder<R> addParameter(String name, String value) {
             if (request.parameters == null) {
-                request.parameters = new HashMap<String, Object>();
+                request.parameters = new HashMap<String, String>();
             }
-            request.parameters.put(name, value);
+            if (!Strings.isNullOrEmptyAfterTrim(name) && !Strings.isNull(value)) {
+                request.parameters.put(name, value);
+            }
             return this;
         }
 
@@ -129,7 +162,20 @@ public class HttpRequest<R> {
             return this;
         }
 
+        public RequestBuilder<R> entityHandler(String entityHandlerName) {
+            request.entityHandlerName = entityHandlerName;
+            return this;
+        }
+
+        public RequestBuilder<R> responseCharset(Charset responseCharset) {
+            request.responseCharset = responseCharset;
+            return this;
+        }
+
         public HttpRequest<R> build() {
+            if (Strings.isNullOrEmptyAfterTrim(request.endpoint)) {
+                throw new ClientException("no endpoint");
+            }
             return request;
         }
 

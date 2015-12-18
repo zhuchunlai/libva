@@ -3,6 +3,7 @@ package org.codefamily.libva.http.core;
 import org.codefamily.libva.spi.Pluggable;
 
 import java.io.InputStream;
+import java.nio.charset.Charset;
 
 /**
  * // TODO doc
@@ -13,6 +14,8 @@ import java.io.InputStream;
  */
 public interface HttpEntityHandler<R> extends Pluggable {
 
-    R handle(Class<R> returnType, InputStream ins);
+    R handle(Class<R> returnType, InputStream ins, Charset charset);
+
+    String getName();
 
 }

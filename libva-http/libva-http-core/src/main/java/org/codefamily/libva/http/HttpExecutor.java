@@ -31,11 +31,11 @@ public class HttpExecutor {
             throw new ConnectorNotFoundException();
         }
         HttpExecutorService executor = executors.get(0);
-        LOG.info(String.format("Load %s successfully.", executor.getName()));
+        LOG.info(String.format("load %s successfully.", executor.getName()));
         this.executor = executor;
     }
 
-    public static HttpExecutor newInstance() {
+    public static HttpExecutor create() {
         return INSTANCE;
     }
 

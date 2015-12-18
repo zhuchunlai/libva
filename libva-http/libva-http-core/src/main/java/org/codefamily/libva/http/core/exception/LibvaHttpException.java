@@ -1,7 +1,7 @@
 package org.codefamily.libva.http.core.exception;
 
 /**
- * // TODO doc
+ * HTTP异常基础抽象
  *
  * @author zhuchunlai
  * @version 1.0.0

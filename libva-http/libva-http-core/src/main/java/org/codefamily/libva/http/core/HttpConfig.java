@@ -11,11 +11,19 @@ public class HttpConfig {
 
     public static final HttpConfig DEFAULT = builder().build();
 
-    private long connectTimeout;
-    private long readTimeout;
+    private int connectTimeout;
+    private int socketTimeout;
 
     public static HttpConfig.Builder builder() {
         return new Builder();
+    }
+
+    public int getConnectTimeout() {
+        return connectTimeout;
+    }
+
+    public int getSocketTimeout() {
+        return socketTimeout;
     }
 
     public static final class Builder {
@@ -25,20 +33,20 @@ public class HttpConfig {
         private Builder() {
             config = new HttpConfig();
             config.connectTimeout = 5000;
-            config.readTimeout = 5000;
+            config.socketTimeout = 5000;
         }
 
         public HttpConfig build() {
             return config;
         }
 
-        public Builder setConnectTimeout(long connectTimeout) {
+        public Builder setConnectTimeout(int connectTimeout) {
             config.connectTimeout = connectTimeout;
             return this;
         }
 
-        public Builder setReadTimeout(long readTimeout) {
-            config.readTimeout = readTimeout;
+        public Builder setSocketTimeout(int socketTimeout) {
+            config.socketTimeout = socketTimeout;
             return this;
         }
 

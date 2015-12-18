@@ -13,4 +13,8 @@ public class ConnectionException extends LibvaHttpException {
         super(message);
     }
 
+    public ConnectionException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
 }

@@ -3,8 +3,7 @@ package org.codefamily.libva.http.connector;
 import org.codefamily.libva.http.core.HttpExecutorService;
 import org.codefamily.libva.http.core.HttpRequest;
 import org.codefamily.libva.http.core.HttpResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.codefamily.libva.http.core.exception.ConnectionException;
 
 /**
  * 基于Apache HttpClient的执行器实现
@@ -15,14 +14,16 @@ import org.slf4j.LoggerFactory;
  */
 public class HttpExecutorServiceImpl implements HttpExecutorService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(HttpExecutorServiceImpl.class);
-
     private static final String EXECUTOR_NAME = "ApacheHttpClient-Executor";
 
     @Override
     public <R> HttpResponse<R> execute(HttpRequest<R> request) {
         HttpCommand<R> command = new HttpCommand<R>(request);
-        return command.execute();
+        try {
+            return command.execute();
+        } catch (Exception e) {
+            throw new ConnectionException(e.getMessage(), e);
+        }
     }
 
     @Override

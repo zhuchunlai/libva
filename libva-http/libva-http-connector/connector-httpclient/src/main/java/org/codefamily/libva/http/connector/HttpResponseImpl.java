@@ -2,11 +2,14 @@ package org.codefamily.libva.http.connector;
 
 import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.codefamily.libva.http.core.HttpEntityHandler;
-import org.codefamily.libva.http.core.HttpResponse;
+import org.codefamily.libva.http.core.*;
 import org.codefamily.libva.http.core.exception.EntityHandlerNotFoundException;
 import org.codefamily.libva.http.core.exception.LibvaHttpException;
 import org.codefamily.libva.spi.PluginManager;
+import org.codefamily.libva.util.Closeables;
+import org.codefamily.libva.util.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,11 +25,16 @@ import java.util.Map;
  */
 public final class HttpResponseImpl<R> implements HttpResponse<R> {
 
-    private static final String JSON_ENTITY_HANDLER = "handler:json://";
+    private static final Logger LOG = LoggerFactory.getLogger(HttpResponseImpl.class);
+    // 考虑实际使用场景，JSON格式的协议比较常见，因此，默认的解析器采用JSON解析器
+    private static final String JSON_ENTITY_HANDLER = "JSON-Entity-Handler";
 
-    private CloseableHttpResponse response;
+    private final HttpRequest<R> request;
+    private final CloseableHttpResponse response;
 
-    HttpResponseImpl(CloseableHttpResponse response) {
+    HttpResponseImpl(HttpRequest<R> request,
+                     CloseableHttpResponse response) {
+        this.request = request;
         this.response = response;
     }
 
@@ -41,19 +49,32 @@ public final class HttpResponseImpl<R> implements HttpResponse<R> {
     }
 
     @Override
-    public R readEntity(Class<R> returnType) {
+    public R readEntity() {
+        String entityHandlerName = request.getEntityHandlerName();
+        entityHandlerName = Strings.isNullOrEmpty(entityHandlerName) ? JSON_ENTITY_HANDLER : entityHandlerName;
+
         @SuppressWarnings("unchecked")
-        HttpEntityHandler<R> defaultEntityHandler = PluginManager.getPlugin(JSON_ENTITY_HANDLER, HttpEntityHandler.class);
-        if (defaultEntityHandler == null) {
-            throw new EntityHandlerNotFoundException(JSON_ENTITY_HANDLER);
+        HttpEntityHandler<R> entityHandler = PluginManager.getPlugin(entityHandlerName, HttpEntityHandler.class);
+        if (entityHandler == null) {
+            throw new EntityHandlerNotFoundException(entityHandlerName);
         }
-        return readEntity(returnType, defaultEntityHandler);
+        LOG.info(String.format("Load entity handler %s success.", entityHandler.getName()));
+
+        return readEntity(entityHandler);
     }
 
     @Override
-    public R readEntity(Class<R> returnType, HttpEntityHandler<R> handler) {
+    public R readEntity(HttpEntityHandler<R> handler) {
+        if (handler == null) {
+            throw new IllegalArgumentException("Argument[handler] is null.");
+        }
         try {
-            return readEntity(returnType, response.getEntity().getContent(), handler);
+            InputStream ins = response.getEntity().getContent();
+            try {
+                return readEntity(ins, handler);
+            } finally {
+                Closeables.close(ins);
+            }
         } catch (IOException e) {
             throw new LibvaHttpException("read response content error.", e);
         }
@@ -78,8 +99,8 @@ public final class HttpResponseImpl<R> implements HttpResponse<R> {
         return ret;
     }
 
-    protected R readEntity(Class<R> returnType, InputStream ins, HttpEntityHandler<R> handler) {
-        return handler.handle(returnType, ins);
+    protected R readEntity(InputStream ins, HttpEntityHandler<R> handler) {
+        return handler.handle(request.getReturnType(), ins, request.getResponseCharset());
     }
 
 }

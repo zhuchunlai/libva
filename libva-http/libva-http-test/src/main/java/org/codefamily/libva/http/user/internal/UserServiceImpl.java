@@ -1,7 +1,6 @@
 package org.codefamily.libva.http.user.internal;
 
 import com.alibaba.fastjson.JSON;
-import org.codefamily.libva.http.ActionResponse;
 import org.codefamily.libva.http.HttpExecutor;
 import org.codefamily.libva.http.core.*;
 import org.codefamily.libva.http.user.User;
@@ -16,22 +15,23 @@ import org.codefamily.libva.http.user.UserService;
 public final class UserServiceImpl implements UserService {
 
     @Override
-    public ActionResponse add(User user) {
-        HttpRequest<ActionResponse> request = HttpRequest.builder(ActionResponse.class)
-                .endpoint("www.family.org")
+    public User add(User user) {
+        HttpRequest<User> request = HttpRequest.builder(User.class)
+                .endpoint("http://localhost:8080")
                 .path("/user")
-                .contentType(ClientConstants.CONTENT_TYPE_JSON)
+                .contentType(ContentType.APPLICATION_JSON)
                 .config(HttpConfig.DEFAULT)
                 .entity(JSON.toJSONString(user))
                 .method(HttpMethod.POST)
                 .build();
 
-        HttpResponse<ActionResponse> response = HttpExecutor.newInstance().execute(request);
+        HttpResponse<User> response = HttpExecutor.create().execute(request);
         switch (response.getStatus()) {
             case 200:
-                return ActionResponse.SUCCESS;
+                return response.readEntity();
             default:
-                return new ActionResponse(false, response.getStatusMessage());
+                throw new RuntimeException(String.format("http status error, code %d, error %s",
+                        response.getStatus(), response.getStatusMessage()));
         }
     }
 
@@ -40,17 +40,17 @@ public final class UserServiceImpl implements UserService {
         HttpRequest<User> request = HttpRequest.builder(User.class)
                 .endpoint("www.family.org")
                 .path(String.format("/user/%s", String.valueOf(id)))
-                .contentType(ClientConstants.CONTENT_TYPE_JSON)
                 .config(HttpConfig.DEFAULT)
                 .method(HttpMethod.GET)
                 .build();
 
-        HttpResponse<User> response = HttpExecutor.newInstance().execute(request);
+        HttpResponse<User> response = HttpExecutor.create().execute(request);
         switch (response.getStatus()) {
             case 200:
-                return response.readEntity(User.class);
+                return response.readEntity();
             default:
-                throw new RuntimeException(response.getStatusMessage());
+                throw new RuntimeException(String.format("http status error, code %d, error %s",
+                        response.getStatus(), response.getStatusMessage()));
         }
     }
 
@@ -58,16 +58,16 @@ public final class UserServiceImpl implements UserService {
     public User findByName(String name) {
         HttpRequest<User> request = HttpRequest.builder(User.class)
                 .config(HttpConfig.DEFAULT)
-                .contentType(ClientConstants.CONTENT_TYPE_JSON)
                 .addParameter("name", name)
                 .build();
 
-        HttpResponse<User> response = HttpExecutor.newInstance().execute(request);
+        HttpResponse<User> response = HttpExecutor.create().execute(request);
         switch (response.getStatus()) {
             case 200:
-                return response.readEntity(User.class);
+                return response.readEntity();
             default:
-                throw new RuntimeException(response.getStatusMessage());
+                throw new RuntimeException(String.format("http status error, code %d, error %s",
+                        response.getStatus(), response.getStatusMessage()));
         }
     }
 
